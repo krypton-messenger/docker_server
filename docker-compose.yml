@@ -35,11 +35,11 @@ services:
             - "3306:3306"
 
 volumes:
+    .mysqlSetup:
     .mysql:
     .encryptedFiles:
     .certificates:
     www:
-    mysqlSetup:
         
 
 networks:
