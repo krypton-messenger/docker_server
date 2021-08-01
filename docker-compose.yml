@@ -1,0 +1,46 @@
+services:
+    web:
+        container_name: web
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ".:/code"
+        networks:
+            - main
+        depends_on:
+            - db
+        volumes:
+            - .encryptedFiles:/encryptedFiles
+            - .certificates:/certificates
+            - www:/www
+        env_file:
+            - envVariables.env
+
+    db:
+        container_name: db
+        image: mysql
+        volumes:
+            - .mysqlSetup:/docker-entrypoint-initdb.d/
+            - .mysql:/var/lib/mysql
+        networks:
+            - main
+        hostname: "db"
+        env_file:
+            - envVariables.env
+        ports:
+            - "3306:3306"
+
+volumes:
+    .mysql:
+    .encryptedFiles:
+    .certificates:
+    www:
+    mysqlSetup:
+        
+
+networks:
+    main:

@@ -1,0 +1,5 @@
+.mysql
+.encryptedFiles
+node_modules
+.certificates
+package-lock.json
