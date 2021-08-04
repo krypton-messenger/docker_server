@@ -44,3 +44,4 @@ volumes:
 networks:
     main:
         name: main_network
+        driver: bridge
