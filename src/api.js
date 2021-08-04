@@ -11,7 +11,16 @@ const querystring = require("qs"),
 class Api {
     constructor(dbquery) {
         this.dbquery = dbquery;
+        this.messageListeners = {};
         this.chatKeyListeners = {}
+    }
+
+    sleep(duration) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(true);
+            }, duration);
+        });
     }
 
     async handleRequest(req, res) {
@@ -80,7 +89,7 @@ class Api {
     }
 
     getAction(url) {
-        return /(?<action>(?<=\/api\/)[a-zA-Z]*)/gm.exec(url).groups.action;
+        return /(?<action>(?<=^.*\/)[a-zA-Z]*(?=\?|$))/gm.exec(url).groups.action;
     }
 
     sendHeaders(_req, res) {
@@ -130,8 +139,8 @@ class Api {
         return new Promise(async (resolve, _reject) => {
             if (process.env.API_STANDALONE) {
                 for (let chatid of chatids) {
-                    this.chatKeyListeners[chatid] = this.chatKeyListeners[chatid] ?? []
-                    this.chatKeyListeners[chatid].push({
+                    this.messageListeners[chatid] = this.messageListeners[chatid] ?? []
+                    this.messageListeners[chatid].push({
                         callback: resolve,
                         starttime
                     });
@@ -139,14 +148,39 @@ class Api {
             } else {
                 do {
                     data = await this.dbquery("SELECT * FROM `messages` WHERE FIND_IN_SET(`chat_id`, ?) AND `timestamp`<=current_timestamp() AND `timestamp`>=?;", [chatids, starttime]);
-                } while (data.length == 0 && await sleep(200));
+                } while (data.length == 0 && await this.sleep(200));
                 resolve(data);
             }
         });
     }
-    async resolveChatIds(chatid) {
-        for (let entry of this.chatKeyListeners[chatid]) {
-            entry.callback(await this.dbquery("SELECT * FROM `messages` WHERE FIND_IN_SET(`chat_id`, ?) AND `timestamp`<=current_timestamp() AND `timestamp`>=?;", [chatids, starttime]));
+
+    waitForChatKey(username){
+        return new Promise(async (resolve,_reject)=>{
+            if(process.env.API_STANDALONE){
+                this.chatKeyListeners[username] = this.chatKeyListeners[username] ?? [];
+                this.chatKeyListeners[username].push({
+                    callback: resolve
+                });
+            }
+        })
+    }
+
+    async resolveChatKey(username, content){
+        for(let entry of this.chatKeyListeners[username] ?? []){
+            try{
+                entry.callback(content);
+            }catch(e){
+                console.error(`error resolving chatKeyListener ${username}`, e);
+            }
+        }
+    }
+    async resolveChatIds(chatid, messageData) {
+        for (let entry of this.messageListeners[chatid] ?? []) {
+            try {
+                entry.callback(messageData);
+            } catch (e) {
+                console.error(`error resolving chatid ${chatid}:`, e);
+            }
         }
     }
     validateKeyset(privateKey, publicKey) {
@@ -159,12 +193,12 @@ class Api {
         return valid;
     }
     async userExists(username) {
-        let dbresult = await db.query("SELECT COUNT(`username`) AS 'count' FROM `users` WHERE `username`=?;", [username]);
+        let dbresult = await this.dbquery("SELECT COUNT(`username`) AS 'count' FROM `users` WHERE `username`=?;", [username]);
         return dbresult[0].count == 1;
     }
 
     async reserveLicence(licence, username) {
-        let dbresult = await db.query("UPDATE `licences` SET `used` = '1', `username` = ? WHERE `licences`.`code` = ? AND `used` = 0", [username, licence]);
+        let dbresult = await this.dbquery("UPDATE `licences` SET `used` = '1', `username` = ? WHERE `licences`.`code` = ? AND `used` = 0", [username, licence]);
         return dbresult.affectedRows == 1;
     }
 
@@ -172,7 +206,7 @@ class Api {
         return new Promise(async (resolve, reject) => {
 
             // get hash from db
-            var dbresult = await db.query("SELECT `password` FROM `users` WHERE `username` = ?;", [username]);
+            var dbresult = await this.dbquery("SELECT `password` FROM `users` WHERE `username` = ?;", [username]);
             var hash = dbresult[0].password;
 
             // compare it to password
@@ -230,6 +264,23 @@ class Api {
             });
         });
     }
+    hashPassword(password, saltRounds) {
+        return new Promise(async (resolve, reject) => {
+            if (!password) {
+                reject("password undefined");
+                return;
+            }
+            bcrypt.hash(password, saltRounds ?? 12, function (err, hash) {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    resolve(hash);
+                }
+
+            );
+        });
+    }
     callApi(query, authToken, socket) {
         var response = {};
         socket = socket ?? false;
@@ -262,7 +313,7 @@ class Api {
                             throw this.returnError("0x000f", ": length is " + password.length);
                         }
 
-                        var hashedPassword = await hashPassword(password);
+                        var hashedPassword = await this.hashPassword(password);
 
                         var privateKey = this.checkParameter(query, "privateKey");
                         var publicKey = this.checkParameter(query, "publicKey");
@@ -362,7 +413,9 @@ class Api {
                         if (!await this.userExists(username)) throw this.returnError("0x0013");
                         var content = this.checkParameter(query, "content");
                         response.success = (await this.dbquery("UPDATE `users` SET `chatKeysInbox` = JSON_ARRAY_APPEND(`chatKeysInbox`,'$', ?) WHERE `users`.`username` = ?", [content, username])).affectedRows == 1;
-
+                        if(process.env.API_STANDALONE && response.success){
+                            this.resolveChatKey(username, content);
+                        }
                         break;
 
                     case "updatechatkeys":
@@ -398,11 +451,19 @@ class Api {
                     case "sendmsg":
                         var chatid = this.checkParameter(query, "chatid");
                         var content = this.checkParameter(query, "content");
-                        var sendtime = dateformat(query.sendtime ?? new Date(), "yyyy-mm-dd HH:MM:ss.l");
+                        var sendtime = dateformat(query.sendtime && query.sendtime >= new Date()? query.sendtime : new Date(), "yyyy-mm-dd HH:MM:ss.l");
                         var encType = query.encType ?? "none";
-                        response.success = (await this.dbquery("INSERT INTO `messages` (`content`,`chat_id`,`encryptionType`, `timestamp`) SELECT ?, ?, ?, CASE WHEN ? >= current_timestamp(5) THEN ? ELSE CURRENT_TIMESTAMP(5) END as `timestamp`", [content, chatid, encType, sendtime, sendtime])).affectedRows == 1;
-                        if (process.env.API_STANDALONE) {
-                            this.resolveChatIds(chatid);
+                        let queryResponse = await this.dbquery("INSERT INTO `messages` (`content`,`chat_id`,`encryptionType`, `timestamp`) VALUES(?, ?, ?, ?)", [content, chatid, encType, sendtime]);
+                        response.success = queryResponse.affectedRows == 1;
+                        if (process.env.API_STANDALONE && response.success) {
+                            // translate variables to fields in table
+                            this.resolveChatIds(chatid, [{
+                                message_id: queryResponse.insertId,
+                                content,
+                                chat_id: chatid,
+                                encryptionType: encType,
+                                timestamp: dateformat(sendtime, "yyyy-mm-dd'T'HH:MM:ss.l'Z'")
+                            }]);
                         }
                         break;
 
@@ -441,7 +502,7 @@ class Api {
                         var lastKnown = JSON.stringify(query.lastKnown) ?? "[]";
                         do {
                             response.data = (await this.dbquery("SELECT `chatKeysInbox` from `users` WHERE `users`.`username` = ? AND `chatKeysInbox` != ?;", [username, lastKnown]));
-                        } while (response.data[0].chatKeysInbox == lastKnown && await sleep(50));
+                        } while (response.data[0].chatKeysInbox == lastKnown && await this.sleep(50));
 
                         response.data = response.data[0].chatKeysInbox;
                         break;
