@@ -10,6 +10,9 @@ const connect = require("connect"),
     Socket = require("./socket.js"),
     socketApi = require("./socketApi.js");
 
+console.log("Called starting script");
+console.time("Starting Server");
+
 const api = new Api(dbquery);
 const static = new Static();
 
@@ -25,6 +28,8 @@ app.use(vhost(new RegExp(".*"), (req, res) => {
         res.end("500 - server error");
     }
 }));
+console.log("Server configured, attempting to start servers");
+console.timeLog("Starting Server");
 
 const httpsServer = https.createServer({
     key: fs.readFileSync(process.env.SSL_KEY),
@@ -33,6 +38,8 @@ const httpsServer = https.createServer({
 
 const httpServer = http.createServer(app).listen(process.env.HTTP_PORT);
 
+console.log("Webservers started, attempting to start WebSocket server");
+console.timeLog("Starting Server");
 const webSocketServer = new webSocket.Server({
     port: process.env.WEBSOCKET_PORT
 });
@@ -59,3 +66,5 @@ process.on('SIGTERM', async () => {
     }
     process.exit(0);
 });
+console.log("All set!");
+console.timeEnd("Starting Server");
