@@ -16,7 +16,7 @@ services:
             - db
         volumes:
             - ./.encryptedFiles:/encryptedFiles
-            - /etc/letsencrypt/live:/certificates:ro
+            - /etc/letsencrypt:/letsencrypt:ro
             - ./.wellKnown:/wellKnown:ro
         env_file:
             - envVariables.env
