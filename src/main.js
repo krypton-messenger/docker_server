@@ -5,6 +5,7 @@ const connect = require("connect"),
     webSocket = require("ws"),
     fs = require("fs"),
     Static = require("./static"),
+    WellKnown = require("./wellKnown"),
     Api = require("./api"),
     dbquery = require("./db"),
     Socket = require("./socket.js"),
@@ -15,13 +16,15 @@ console.time("Starting Server");
 
 const api = new Api(dbquery);
 const static = new Static();
+const wellKnown = new WellKnown();
 
 const app = connect();
 
 // call api if path is /api or if useapi-header is set (direct access for app), else serve static filess
 app.use(vhost(new RegExp(".*"), (req, res) => {
     try {
-        if (/.*(?:\/api\/).*/gm.test(req.url) || req.headers.useapi) api.handleRequest(req, res);
+        if (/.*(?:\/\.well-known\/).*/gm.test(req.url) || req.headers.useapi) wellKnown.handleRequest(req, res);
+        else if (/.*(?:\/api\/).*/gm.test(req.url) || req.headers.useapi) api.handleRequest(req, res);
         else static.handleRequest(req, res);
     } catch (e) {
         console.error("uncaught error:", e);

@@ -1,23 +1,23 @@
 const serveStatic = require("serve-static"),
     fs = require("fs");
 
-class Static {
+class WellKnown {
     constructor() {
-        this.root = process.env.PUBLIC_HTML;
+        this.root = process.env.WELL_KNOWN_BASE;
         this.fileServer = serveStatic(this.root, {
-            index: ['index.html', 'index.htm'],
-            dotfiles: "ignore",
+            index: false,
+            dotfiles: "allow",
             fallthrough: true
         });
     }
 
     displayErrorPage(_req, res) {
-        res.end(fs.readFileSync(this.root + "err/404.html"));
+        res.end("ERROR: unknown /.well-known/ service");
     }
 
     handleRequest(req, res) {
-        console.log("static:", req.url);
+        console.log("well-known:", req.url);
         this.fileServer(req, res, this.displayErrorPage.bind(this, req, res));
     }
 }
-module.exports = Static;
+module.exports = WellKnown;

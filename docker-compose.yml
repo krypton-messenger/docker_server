@@ -16,7 +16,8 @@ services:
             - db
         volumes:
             - ./.encryptedFiles:/encryptedFiles
-            - ./.certificates:/certificates
+            - ./.certificates:/certificates:ro
+            - ./.wellKnown:/wellKnown:ro
         env_file:
             - envVariables.env
 
@@ -24,7 +25,7 @@ services:
         container_name: db
         image: mysql
         volumes:
-            - ./.mysqlSetup:/docker-entrypoint-initdb.d/
+            - ./.mysqlSetup:/docker-entrypoint-initdb.d/:ro
             - ./.mysql:/var/lib/mysql
         networks:
             - main
@@ -39,6 +40,7 @@ volumes:
     .encryptedFiles:
     .certificates:
     .mysqlSetup:
+    .wellKnown:
         
 
 networks:
