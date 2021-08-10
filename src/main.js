@@ -34,9 +34,11 @@ app.use(vhost(new RegExp(".*"), (req, res) => {
 console.log("Server configured, attempting to start servers");
 console.timeLog("Starting Server");
 
+let cRoot = process.env.CERT_ROOT;
+cRoot = cRoot.replace("[DOMAINNAME]", process.env.DOMAINNAME)
 const httpsServer = https.createServer({
-    key: fs.readFileSync(process.env.SSL_KEY),
-    cert: fs.readFileSync(process.env.SSL_CERT),
+    key: fs.readFileSync(cRoot.replace("[PEMFILE]", process.env.SSL_KEY)),
+    cert: fs.readFileSync(cRoot.replace("[PEMFILE]", process.env.SSL_CERT)),
 }, app).listen(process.env.HTTPS_PORT);
 
 const httpServer = http.createServer(app).listen(process.env.HTTP_PORT);

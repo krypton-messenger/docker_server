@@ -16,10 +16,11 @@ services:
             - db
         volumes:
             - ./.encryptedFiles:/encryptedFiles
-            - ./.certificates:/certificates:ro
+            - /etc/letsencrypt/live:/certificates:ro
             - ./.wellKnown:/wellKnown:ro
         env_file:
             - envVariables.env
+            - ssl.env
 
     db:
         container_name: db
