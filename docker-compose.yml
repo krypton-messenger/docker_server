@@ -15,8 +15,8 @@ services:
         depends_on:
             - db
         volumes:
-            - .encryptedFiles:/encryptedFiles
-            - .certificates:/certificates
+            - ./.encryptedFiles:/encryptedFiles
+            - ./.certificates:/certificates
         env_file:
             - envVariables.env
 
@@ -24,8 +24,8 @@ services:
         container_name: db
         image: mysql
         volumes:
-            - mysqlSetup:/docker-entrypoint-initdb.d/
-            - .mysql:/var/lib/mysql
+            - ./.mysqlSetup:/docker-entrypoint-initdb.d/
+            - ./.mysql:/var/lib/mysql
         networks:
             - main
         hostname: "db"
@@ -38,7 +38,7 @@ volumes:
     .mysql:
     .encryptedFiles:
     .certificates:
-    mysqlSetup:
+    .mysqlSetup:
         
 
 networks:
