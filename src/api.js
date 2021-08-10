@@ -27,14 +27,12 @@ class Api {
         console.log("api:", req.url);
 
         this.sendHeaders(req, res);
-        console.log("checkpoint", 1);
         let params = await this.getParameters(req)
         params.action = this.getAction(req.url);
 
         let auth = req.headers.authorization;
 
         var response = {};
-        console.log("checkpoint", 2);
         try {
             res.statusCode = 200;
             response = await this.callApi(params, auth);
@@ -53,15 +51,13 @@ class Api {
                 console.error("SERVER_ERROR:", error)
             }
         }
-        console.log({
-            params,
-            auth,
-            response
-        });
-        console.log("checkpoint", 3);
+        // console.log({
+        //     params,
+        //     auth,
+        //     response
+        // });
         res.write(JSON.stringify(response, null, 3));
         res.end();
-        console.log("checkpoint", 4);
     }
 
     getParameters(req) {

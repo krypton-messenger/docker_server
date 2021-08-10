@@ -14,6 +14,7 @@ const socketApi = async (data, socket, api) => {
             break;
         case "listenChatKey":
             while(socket.isConnected){
+                // without any authentication? over the API the user needs auth...
                 let newContent = await api.waitForChatKey(message.data.username);
                 socket.send({
                     trigger:"newChatKey",
