@@ -23,7 +23,7 @@ const app = connect();
 // call api if path is /api or if useapi-header is set (direct access for app), else serve static filess
 app.use(vhost(new RegExp(".*"), (req, res) => {
     try {
-        if (/.*(?:\/\.well-known\/).*/gm.test(req.url) || req.headers.useapi) wellKnown.handleRequest(req, res);
+        if (/.*(?:\/\.well-known\/).*/gm.test(req.url)) wellKnown.handleRequest(req, res);
         else if (/.*(?:\/api\/).*/gm.test(req.url) || req.headers.useapi) api.handleRequest(req, res);
         else static.handleRequest(req, res);
     } catch (e) {
