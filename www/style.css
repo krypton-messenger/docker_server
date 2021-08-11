@@ -68,7 +68,15 @@ h5{
 h6{
     font-size: medium;
 }
+#api h1,
+#api h2,
+#api h3,
+#api h4,
+#api h5,
+#api h6 {
 
+    margin: 0;
+}
 ul, p{
     margin:0;
 }
