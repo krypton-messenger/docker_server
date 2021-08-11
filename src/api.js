@@ -86,7 +86,7 @@ class Api {
 
     getAction(url) {
         let result = /(?<action>(?<=^.*\/)[a-zA-Z]*(?=\?|$))/gm.exec(url);
-        if (result.groups) return result.groups.action;
+        if (result) return result.groups.action;
         else return url;
     }
 
