@@ -85,7 +85,9 @@ class Api {
     }
 
     getAction(url) {
-        return /(?<action>(?<=^.*\/)[a-zA-Z]*(?=\?|$))/gm.exec(url).groups.action;
+        let result = /(?<action>(?<=^.*\/)[a-zA-Z]*(?=\?|$))/gm.exec(url);
+        if (result.groups) return result.groups.action;
+        else return url;
     }
 
     sendHeaders(_req, res) {
