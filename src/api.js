@@ -24,7 +24,7 @@ class Api {
     }
 
     async handleRequest(req, res) {
-        console.log("api:", req.url);
+        console.log("api: \t", req.url);
 
         this.sendHeaders(req, res);
         let params = await this.getParameters(req)

@@ -16,7 +16,7 @@ class WellKnown {
     }
 
     handleRequest(req, res) {
-        console.log("well-known:", req.url);
+        console.log("well-known: \t", req.url);
         this.fileServer(req, res, this.displayErrorPage.bind(this, req, res));
     }
 }
