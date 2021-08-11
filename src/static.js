@@ -16,7 +16,7 @@ class Static {
     }
 
     handleRequest(req, res) {
-        console.log("static:", req.url);
+        console.log(`static: ${req.url} ip: ${req.connection.remoteAddress}, ${req.headers['x-forwarded-for'] ?? "not using a proxy"}`);
         this.fileServer(req, res, this.displayErrorPage.bind(this, req, res));
     }
 }
