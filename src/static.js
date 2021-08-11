@@ -22,7 +22,7 @@ class Static {
         res.setHeader('Access-Control-Allow-Methods', 'GET');
         res.setHeader("X-Powered-By", "ttschnz");
         res.setHeader("X-Content-Type-Options", "nosniff");
-        res.setHeader("Content-Security-Policy", "default-src 'self'; style-src fonts.googleapis.com 'self'; font-src fonts.gstatic.com; script-src cdn.cloudflare.com code.jquery.com");
+        res.setHeader("Content-Security-Policy", "default-src 'self'; style-src fonts.googleapis.com 'self'; font-src fonts.gstatic.com; script-src cdnjs.cloudflare.com code.jquery.com 'self';");
         console.log(`static: \t${req.url} \tip: ${req.connection.remoteAddress}, ${req.headers['x-forwarded-for'] ?? "not using a proxy"}`);
         this.fileServer(req, res, this.displayErrorPage.bind(this, req, res));
     }
