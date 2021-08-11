@@ -13,9 +13,10 @@ class Static {
 
     displayErrorPage(_req, res) {
         res.end(fs.readFileSync(this.root + "err/404.html"));
+        console.log('\x1b[31m%s\x1b[0m', `static: \t${req.url} \tip: ${req.connection.remoteAddress}, ${req.headers['x-forwarded-for'] ?? "not using a proxy"}`);
     }
 
-    handleRequest(req, res) {
+    async handleRequest(req, res) {
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Headers', '*');
         res.setHeader('X-Frame-Options', 'DENY');
@@ -23,8 +24,15 @@ class Static {
         res.setHeader("X-Powered-By", "ttschnz");
         res.setHeader("X-Content-Type-Options", "nosniff");
         res.setHeader("Content-Security-Policy", "default-src 'self'; style-src fonts.googleapis.com 'self'; font-src fonts.gstatic.com; script-src cdnjs.cloudflare.com code.jquery.com 'self';");
-        console.log(`static: \t${req.url} \tip: ${req.connection.remoteAddress}, ${req.headers['x-forwarded-for'] ?? "not using a proxy"}`);
-        this.fileServer(req, res, this.displayErrorPage.bind(this, req, res));
+        if (await (() => {
+            return new Promise((resolve, _reject)=>{
+                this.fileServer(req, res, (() => {
+                    this.displayErrorPage(req, res);
+                    resolve(false);
+                }).bind(this));
+                resolve(true); // hoping it won't run async
+            });
+        })()) console.log(`static: \t${req.url} \tip: ${req.connection.remoteAddress}, ${req.headers['x-forwarded-for'] ?? "not using a proxy"}`);
     }
 }
 module.exports = Static;
