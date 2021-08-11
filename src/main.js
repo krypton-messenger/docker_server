@@ -78,6 +78,5 @@ process.on('SIGTERM', async () => {
     }
     process.exit(0);
 });
-
 console.log("All set!");
 console.timeEnd("Starting Server");
