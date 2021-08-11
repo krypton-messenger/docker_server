@@ -16,7 +16,14 @@ class Static {
     }
 
     handleRequest(req, res) {
-        console.log(`static: ${req.url} ip: ${req.connection.remoteAddress}, ${req.headers['x-forwarded-for'] ?? "not using a proxy"}`);
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Headers', '*');
+        res.setHeader('X-Frame-Options', 'DENY');
+        res.setHeader('Access-Control-Allow-Methods', 'GET');
+        res.setHeader("X-Powered-By", "ttschnz");
+        res.setHeader("X-Content-Type-Options", "nosniff");
+        res.setHeader("Content-Security-Policy", "default-src 'self'; style-src fonts.googleapis.com; font-src fonts.gstatic.com;");
+        console.log(`static: \t${req.url} \tip: ${req.connection.remoteAddress}, ${req.headers['x-forwarded-for'] ?? "not using a proxy"}`);
         this.fileServer(req, res, this.displayErrorPage.bind(this, req, res));
     }
 }
