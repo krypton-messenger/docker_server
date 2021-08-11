@@ -25,7 +25,7 @@ class Static {
         res.setHeader("X-Content-Type-Options", "nosniff");
         res.setHeader("Content-Security-Policy", "default-src 'self'; style-src fonts.googleapis.com 'self'; font-src fonts.gstatic.com; script-src cdnjs.cloudflare.com code.jquery.com 'self';");
         console.log(`static: \t${req.url} \tip: ${req.connection.remoteAddress}, ${req.headers['x-forwarded-for'] ?? "not using a proxy"}`);
-        this.fileServer(req, res, displayErrorPage.bind(this, req, res))
+        this.fileServer(req, res, this.displayErrorPage.bind(this, req, res))
     }
 }
 module.exports = Static;
