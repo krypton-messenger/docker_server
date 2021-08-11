@@ -11,7 +11,7 @@ class Static {
         });
     }
 
-    displayErrorPage(_req, res) {
+    displayErrorPage(req, res) {
         res.end(fs.readFileSync(this.root + "err/404.html"));
         console.log('\x1b[31m%s\x1b[0m', `static: \t${req.url} \tip: ${req.connection.remoteAddress}, ${req.headers['x-forwarded-for'] ?? "not using a proxy"}`);
     }
