@@ -12,7 +12,7 @@ CREATE TABLE `chat`.`messages`
 CREATE TABLE `chat`.`users` 
 ( 
     `username` TEXT NOT NULL , 
-    `profilePicture` TEXT NULL DEFAULT NULL ,
+    `profilePicture` LONGTEXT NULL DEFAULT NULL ,
     `password` TEXT NOT NULL , 
     `publicKey` TEXT NOT NULL ,
     `privateKey` TEXT NOT NULL ,
