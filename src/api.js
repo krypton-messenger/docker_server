@@ -483,7 +483,6 @@ class Api {
                         var chatid = this.checkParameter(query, "chatid");
                         var offset = isNaN(parseInt(query.offset)) ? 0 : parseInt(query.offset);
                         var direction = query.desc ? "DESC" : "ASC";
-                        console.log(`LIMIT=${query.limit}`);
                         if(query.limit == "ALL"){
                             response.data = (await this.dbquery("SELECT * FROM `messages` WHERE `chat_id` LIKE ? AND `timestamp`<=current_timestamp(5) ORDER BY `message_id` " + direction + ";", [chatid]));
                         }else{
