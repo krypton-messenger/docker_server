@@ -481,10 +481,14 @@ class Api {
                     case "getmessages":
                     case "getmsg":
                         var chatid = this.checkParameter(query, "chatid");
-                        var limit = isNaN(parseInt(query.limit)) ? process.env.MESSAGE_DEFAULT_LIMIT : parseInt(query.limit);
                         var offset = isNaN(parseInt(query.offset)) ? 0 : parseInt(query.offset);
                         var direction = query.desc ? "DESC" : "ASC";
-                        response.data = (await this.dbquery("SELECT * FROM `messages` WHERE `chat_id` LIKE ? AND `timestamp`<=current_timestamp(5) ORDER BY `message_id` " + direction + " LIMIT " + limit + " OFFSET " + offset + ";", [chatid]));
+                        if(query.limit == "ALL"){
+                            response.data = (await this.dbquery("SELECT * FROM `messages` WHERE `chat_id` LIKE ? AND `timestamp`<=current_timestamp(5) ORDER BY `message_id` " + direction + " OFFSET " + offset + ";", [chatid]));
+                        }else{
+                            var limit = isNaN(parseInt(query.limit)) ? process.env.MESSAGE_DEFAULT_LIMIT : parseInt(query.limit);
+                            response.data = (await this.dbquery("SELECT * FROM `messages` WHERE `chat_id` LIKE ? AND `timestamp`<=current_timestamp(5) ORDER BY `message_id` " + direction + " LIMIT " + limit + " OFFSET " + offset + ";", [chatid]));
+                        }
                         break;
 
                     case "awaitmessages":
