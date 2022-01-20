@@ -35,7 +35,7 @@ console.log("Server configured, attempting to start servers");
 console.timeLog("Starting Server");
 
 const httpsServer = (() => {
-    if (process.env.ENABLE_SSL) {
+    if (process.env.ENABLE_SSL.toLowerCase() == "true") {
         let cRoot = process.env.CERT_ROOT;
         cRoot = cRoot.replace("[DOMAINNAME]", process.env.DOMAINNAME);
         return https.createServer({
