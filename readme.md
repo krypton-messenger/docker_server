@@ -18,8 +18,10 @@ if you do not allready have a certificate for your domain, you can get one for f
 Config the server to ENABLE_SSL=false, since you do not have a certificate at the moment. After that, run `docker-compose up -d` to start the server. have a look at the logs with `docker-compose logs web` to ensure that the server is running, or curl it on its port defined i `envVariables.env` (default is 80).
 If your server is running, follow the instructions on https://certbot.eff.org/instructions and choose `webroot`.
 
-The well-known folder for the acme-challenge is located inside the cloned repo: `.wellKnown`. 
+The well-known folder for the acme-challenge is located inside the cloned repo: you can indicate `~/docker_server/.wellKnown` as webroot. 
 If you wish, you can activate the automatic renewal, but note that the server needs to be restarted if a new certificate is issued since the certificate is read at server startup.
+
+If the certificate has been issued, rebuid the server (`docker-compose up -d --build`) with ssl enabled (`ssl.env`=> `ENABLE_SSL=true`)
 ## starting your servers
 `docker-compose up -d --build`
 ## terminating the servers
