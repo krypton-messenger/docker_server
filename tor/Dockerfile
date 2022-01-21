@@ -5,9 +5,14 @@ RUN apt update
 RUN apt install tor -y
 
 # install journalctl
-RUN apt install systemd -y
+RUN apt install python3
 
 # add config
 COPY config/torrc /etc/tor/torrc
 
-CMD [ "service", "tor", "start", "&&", "cat", "/var/lib/tor/service/hostname", "&&", "journalctl", "-f"]
+# add main script
+COPY main.py /main.py
+
+RUN service tor start
+
+CMD [ "python3 /main.py"]
