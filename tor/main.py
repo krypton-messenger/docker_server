@@ -1,5 +1,12 @@
 import os, time
-
+print("waiting for web to be reachable")
+while True:
+    time.sleep(5)
+    if os.system("ping -c 1 " + SOMEHOST) is not 0:
+        print("web is up")
+        break
+    print("web is not yet up")
+print("attempting to start tor")
 print(os.popen("service tor start").read())
 
 while True:

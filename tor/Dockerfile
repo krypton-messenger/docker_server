@@ -5,7 +5,7 @@ RUN apt update
 RUN apt install tor -y
 
 # install journalctl
-RUN apt install python3
+RUN apt install python3 -y
 
 # add config
 COPY config/torrc /etc/tor/torrc
