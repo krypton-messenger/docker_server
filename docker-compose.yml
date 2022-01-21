@@ -35,12 +35,26 @@ services:
         ports:
             - "3306:3306"
 
+    tor:
+        container_name: onion
+        build:
+            context: ./tor
+            dockerfile: Dockerfile
+        volumes:
+            - ./.torData:/tor
+        networks:
+            -main
+        hostname: "tor"
+        env_file:
+            - envVariables.env
+
 volumes:
     .mysql:
     .encryptedFiles:
     .certificates:
     .mysqlSetup:
     .wellKnown:
+    .tor:
         
 
 networks:
