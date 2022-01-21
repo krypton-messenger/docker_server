@@ -43,7 +43,7 @@ services:
         volumes:
             - ./.torData:/tor
         networks:
-            -main
+            - main
         hostname: "tor"
         env_file:
             - envVariables.env
