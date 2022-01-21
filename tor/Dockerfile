@@ -13,6 +13,4 @@ COPY config/torrc /etc/tor/torrc
 # add main script
 COPY main.py /main.py
 
-RUN service tor start
-
 CMD [ "python3 /main.py"]
