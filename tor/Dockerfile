@@ -17,4 +17,4 @@ COPY config/torrc /etc/tor/torrc
 RUN mkdir /code
 COPY main.py /code/main.py
 
-CMD python3 /code/main.py
+CMD python3 -u /code/main.py
