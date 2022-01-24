@@ -4,7 +4,7 @@ while True:
     time.sleep(5)
     returnState = os.system("ping -c 1 web")
     print("returnState:",returnState)
-    if not returnState == 0:
+    if returnState == 0:
         print("web is up")
         break
     print("web is not yet up")
