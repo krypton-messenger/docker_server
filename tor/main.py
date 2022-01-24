@@ -10,7 +10,8 @@ while True:
     print("web is not yet up")
 print("attempting to start tor")
 print(os.popen("service tor start").read())
-
+with open("/var/lib/tor/service/hostname") as f:
+    print("hostname:", f.read())
 while True:
     time.sleep(5)
     if os.popen("service tor status").read().find("running") == -1:
