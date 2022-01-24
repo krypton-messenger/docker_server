@@ -11,6 +11,7 @@ RUN apt install python3 -y
 COPY config/torrc /etc/tor/torrc
 
 # add main script
-COPY main.py /main.py
+RUN mkdir /code
+COPY main.py /code/main.py
 
-CMD [ "python3 /main.py"]
+CMD [ "python3 /code/main.py"]
